@@ -1,4 +1,1 @@
-salesforce-auth0-mbaas
-======================
-
-Custom mBaaS Node.js code for Salesforce Auth0 Example Project
+# Backend Node/Express app for the FH-Salesforce-Auth0 app

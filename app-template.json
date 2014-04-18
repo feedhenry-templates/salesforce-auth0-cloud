@@ -1,0 +1,7 @@
+{
+  "id": "salesforce_auth0_project_cloud",
+  "name": "Salesforce Auth0 Project-cloud",
+  "type": "cloud_nodejs",
+  "repoUrl": "git://github.com/feedhenry-sample-apps/salesforce-auth0-project-cloud.git",
+  "repoBranch": "refs/heads/master"
+}
