@@ -1,7 +1,7 @@
 // Main Start point into the app
-var webapp = require('fh-webapp');
 var express = require('express');
-$fh = require('fh-api');
+var mbaasApi = require('fh-mbaas-api');
+var mbaasExpress = mbaasApi.mbaasExpress();
 var path = require('path');
 var jwt = require('express-jwt');
 var cors = require('cors');
@@ -38,12 +38,13 @@ app.configure(function() {
     app.use(express.static(path.join(__dirname, '../client/default')));
 });
 
-// Set up default routes so app can work as before
-//
-// (with Exported functions in main.js used with `$fh.act`)
-app.use('/sys', webapp.sys(mainjs));
-app.use('/mbaas', webapp.mbaas);
-app.use('/cloud', webapp.cloud(mainjs));
+// Note: the order which we add middleware to Express here is important!
+app.use('/sys', mbaasExpress.sys(securableEndpoints));
+app.use('/mbaas', mbaasExpress.mbaas);
+
+// Note: important that this is added just before your own Routes
+app.use(mbaasExpress.fhmiddleware());
+app.use('/cloud', mbaasExpress.cloud(mainjs));
 
 // Route definitions
 app.get('/api/login', routes.login);
@@ -54,4 +55,9 @@ app.get('/api/campaigns', routes.listCampaigns);
 app.get('/api/accounts/:accountId', routes.accountDetails);
 app.get('/api/cases/:caseId', routes.caseDetails);
 
-module.exports = app.listen(process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001);
+app.use(mbaasExpress.errorHandler());
+
+var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
+var server = app.listen(port, function(){
+  console.log("App started at: " + new Date() + " on port: " + port);
+});
