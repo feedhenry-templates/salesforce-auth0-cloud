@@ -1,13 +1,19 @@
-// Main Start point into the app
-var webapp = require('fh-webapp');
+var mbaas = require('fh-mbaas-express');
 var express = require('express');
-$fh = require('fh-api');
+var session = require('express-session');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var methodOverride = require('method-override');
+var cors = require('cors');
 var path = require('path');
 var jwt = require('express-jwt');
-var cors = require('cors');
-var mainjs = require('./main.js');
 var routes = require('./routes.js');
 var creds = require('./config/credentials.js');
+
+var app = express();
+
+// Securable endpoints: list the endpoints which you want to make securable here
+var securableEndpoints = ['hello'];
 
 // JSON Web Token implementation for Auth0
 var authenticate = jwt({
@@ -15,35 +21,12 @@ var authenticate = jwt({
   audience: creds.audience
 });
 
-var app = express();
+//var corsOptions = {
+//  origin: 'http://127.0.0.1:8000',
+//  methods: ['GET, PUT, POST, DELETE, OPTIONS'],
+//  allowedHeaders: ['Content-Type', 'Authorization']
+//};
 
-var corsOptions = { 
-  origin: 'http://127.0.0.1:8000',
-  methods: ['GET, PUT, POST, DELETE, OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-// Use Express to parse various params and allow CORS for FHC local
-app.configure(function() {
-    app.use(express.bodyParser());
-    app.use(express.cookieParser());
-    app.use(express.session({ secret: 'shhhhhhhhh' }));
-    app.use(express.methodOverride());
-    app.use(cors(corsOptions));
-    app.use(express.urlencoded());
-    app.use(express.methodOverride());
-    // intercept all /api calls and validate the token
-    app.use('/api', authenticate);
-    app.use(app.router);
-    app.use(express.static(path.join(__dirname, '../client/default')));
-});
-
-// Set up default routes so app can work as before
-//
-// (with Exported functions in main.js used with `$fh.act`)
-app.use('/sys', webapp.sys(mainjs));
-app.use('/mbaas', webapp.mbaas);
-app.use('/cloud', webapp.cloud(mainjs));
 
 // Route definitions
 app.get('/api/login', routes.login);
@@ -54,4 +37,29 @@ app.get('/api/campaigns', routes.listCampaigns);
 app.get('/api/accounts/:accountId', routes.accountDetails);
 app.get('/api/cases/:caseId', routes.caseDetails);
 
-module.exports = app.listen(process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001);
+app.use(cors());
+app.use(session({secret: 'shhhhhhhhh'}));
+app.use(cookieParser);
+app.use(express.static(path.join(__dirname, '/www')));
+
+// Note: the order which we add middleware to Express here is important!
+app.use('/sys', mbaas.sys(securableEndpoints));
+app.use('/mbaas', mbaas.mbaas);
+
+// Note: important that this is added just before your own Routes
+app.use(mbaas.fhmiddleware());
+
+app.use('/api', authenticate);
+
+// You can define custom URL handlers here, like this one:
+app.use('/', function(req, res) {
+  res.end('Your Cloud App is Running');
+});
+
+// Important that this is last!
+app.use(mbaas.errorHandler());
+
+var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
+var server = app.listen(port, function() {
+  console.log("App started at: " + new Date() + " on port: " + port);
+});
