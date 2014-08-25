@@ -1,4 +1,5 @@
-var mbaas = require('fh-mbaas-express');
+var mbaasApi = require('fh-mbaas-api');
+var mbaas = mbaasApi.mbaasExpress();
 var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');

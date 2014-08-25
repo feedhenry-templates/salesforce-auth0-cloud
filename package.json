@@ -2,8 +2,7 @@
   "name": "fh-salesforce-auth0",
   "version": "0.1.1",
   "dependencies": {
-    "fh-mbaas-api": "~3.0.0",
-    "fh-mbaas-express": "~3.0.0",
+    "fh-mbaas-api": "~4.0.0",
     "request": "2.34.0",
     "node-salesforce": "0.8.0",
     "express-jwt": "0.2.0",
