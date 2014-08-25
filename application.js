@@ -1,6 +1,6 @@
 var mbaasApi = require('fh-mbaas-api');
-var mbaas = mbaasApi.mbaasExpress();
 var express = require('express');
+var mbaas = mbaasApi.mbaasExpress();
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
