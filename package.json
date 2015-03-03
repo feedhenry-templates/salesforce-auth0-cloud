@@ -2,7 +2,7 @@
   "name": "fh-salesforce-auth0",
   "version": "0.0.1",
   "dependencies" : {
-    "fh-mbaas-api" : "~4.6.0",
+    "fh-mbaas-api" : "~4.9.0",
     "express": "4.0.0",
     "request": "~2.40.0",
     "node-salesforce": "0.8.0",
@@ -30,5 +30,6 @@
     "grunt-open": "~0.2.3",
     "grunt-plato": "~1.0.0"
   },
-  "license": "mit"
+  "license": "mit",
+  "main": "application.js"
 }
